@@ -33,66 +33,54 @@ This architecture demonstrates how microservices communicate through **Kafka top
     - Consumes events from **`stock-update-topic`**.
     - Updates the stock accordingly in the system.
 
+            +-------------------+
+            |   Bookstore API   |
+            | (CartController)  |
+            +-------------------+
+                      |
+                      |  (produce checkout event)
+                      v
+            +-------------------------+
+            |  checkout-events-topic  |
+            +-------------------------+
+                      |
+                      |  (consume)
+                      v
+            +-------------------+
+            |  Payment Service  |
+            | (Consumer)        |
+            +-------------------+
+                      |
+                      |  (produce payment result)
+                      v
+            +-------------------------+
+            | payment-result-topic    |
+            +-------------------------+
+                      |
+                      |  (consume)
+                      v
+            +---------------------------+
+            | Bookstore Service (Consumer)
+            +---------------------------+
+                      |
+                      |  (produce stock update event)
+                      v
+            +-------------------------+
+            |  stock-update-topic     |
+            +-------------------------+
+                      |
+                      |  (consume)
+                      v
+            +-------------------+
+            | Inventory Service |
+            +-------------------+
 
-    +-------------------+
-    |   Bookstore API   |
-    | (CartController)  |
-    +-------------------+
-              |
-              |  (produce checkout event)
-              v
-    +-------------------------+
-    |  checkout-events-topic  |
-    +-------------------------+
-              |
-              |  (consume)
-              v
-    +-------------------+
-    |  Payment Service  |
-    | (Consumer)        |
-    +-------------------+
-              |
-              |  (produce payment result)
-              v
-    +-------------------------+
-    | payment-result-topic    |
-    +-------------------------+
-              |
-              |  (consume)
-              v
-    +---------------------------+
-    | Bookstore Service (Consumer)
-    +---------------------------+
-              |
-              |  (produce stock update event)
-              v
-    +-------------------------+
-    |  stock-update-topic     |
-    +-------------------------+
-              |
-              |  (consume)
-              v
-    +-------------------+
-    | Inventory Service |
-    +-------------------+
 
 This clarifies the roles:
 - **Bookstore API** → producer for checkout.
 - **Payment Service** → consumer of checkout, producer of result.
 - **Bookstore (Consumer)** → reacts to payment results, produces stock events.
 - **Inventory Service** → final consumer, updates stock.
-
-## Event Flow (Mermaid Diagram)
-
-```mermaid
-flowchart LR
-    A[Bookstore Service\n(CartController)] -->|produce| B[(checkout-events-topic)]
-    B -->|consume| C[Payment Service]
-    C -->|produce| D[(payment-result-topic)]
-    D -->|consume| E[Bookstore Service\n(Consumer)]
-    E -->|produce| F[(stock-update-topic)]
-    F -->|consume| G[Inventory Service]
-```
 
 ---
 
