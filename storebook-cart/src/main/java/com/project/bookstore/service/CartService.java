@@ -6,8 +6,9 @@ import com.project.bookstore.model.Customer;
 import com.project.bookstore.repository.BookRepository;
 import com.project.bookstore.repository.CartRepository;
 import com.project.bookstore.repository.CustomerRepository;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -17,16 +18,22 @@ public class CartService {
     private final CustomerRepository customerRepository;
     private final BookRepository bookRepository;
     private final CartRepository cartRepository;
+    private final KafkaTemplate<String, String> kafkaTemplate;
 
-    public CartService(CustomerRepository customerRepository, BookRepository bookRepository, CartRepository cartRepository) {
+    public CartService(CustomerRepository customerRepository,
+                       BookRepository bookRepository,
+                       CartRepository cartRepository,
+                       KafkaTemplate<String, String> kafkaTemplate) {
         this.customerRepository = customerRepository;
         this.bookRepository = bookRepository;
         this.cartRepository = cartRepository;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     @Transactional
     public String addBookToCart(Long customerId, String bookTitle) {
-        Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new RuntimeException("Customer not found."));
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new RuntimeException("Customer not found."));
 
         Optional<Book> bookOpt = bookRepository.findByTitle(bookTitle);
         if (bookOpt.isEmpty()) {
@@ -43,7 +50,6 @@ public class CartService {
         cartRepository.save(cart);
 
         return "Book '" + book.getTitle() + "' added to " + customer.getName() + "'s cart";
-
     }
 
     @Transactional(readOnly = true)
@@ -55,7 +61,13 @@ public class CartService {
         if (cart == null || cart.getBooks().isEmpty()) {
             return 0.0;
         }
-        return cart.getBooks().stream().mapToDouble(Book::getPrice).sum();
-    }
 
+        double total = cart.getBooks().stream().mapToDouble(Book::getPrice).sum();
+
+        // Publish Kafka event por payment
+        String event = String.format("Customer %s checked out with total=%.2f", customer.getName(), total);
+        kafkaTemplate.send("checkout-events-topic", event);
+
+        return total;
+    }
 }
