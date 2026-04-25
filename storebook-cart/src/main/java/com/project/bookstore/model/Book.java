@@ -9,19 +9,17 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Table(name = "books")
 public class Book {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String title;
+
+    @Column(nullable = false)
     private Double price;
 
-    // Many books in 1 cart
-    @ManyToOne
-    @JoinColumn(name = "cart_id")
-    private Cart cart;
-
 }
-

@@ -1,3 +1,3 @@
 INSERT INTO customer (id, name) VALUES (1, 'John Doe');
-INSERT INTO cart (id, customer_id) VALUES (1, 1);
-INSERT INTO book (id, title, price, cart_id) VALUES (1, 'Spring Boot Basics', 19.90, 1)
+INSERT INTO books (id, title, price) VALUES (1, 'Spring Boot Basics', 19.90);
+INSERT INTO books (id, title, price) VALUES (2, 'Design Patterns', 39.90);

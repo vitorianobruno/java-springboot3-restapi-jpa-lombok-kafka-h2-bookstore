@@ -12,29 +12,41 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Table(name = "carts")
 public class Cart {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 1 cart have many books
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Book> books = new ArrayList<>();
-
     // One cart belongs to one customer
     @OneToOne
     @JoinColumn(name = "customer_id")   // Foreign key in Cart table
     private Customer customer;
 
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "cart_books",
+            joinColumns = @JoinColumn(name = "cart_id"),
+            inverseJoinColumns = @JoinColumn(name = "book_id")
+    )
+    private List<Book> books = new ArrayList<>();
+
     public void addBook(Book book) {
-        books.add(book);
-        book.setCart(this);
+        if (!this.books.contains(book)) {
+            this.books.add(book);
+        }
     }
 
     public void removeBook(Book book) {
-        books.remove(book);
-        book.setCart(null);
+        this.books.remove(book);
     }
 
+    public void clear() {
+        this.books.clear();
+    }
+
+    public boolean isEmpty() {
+        return this.books.isEmpty();
+    }
 }

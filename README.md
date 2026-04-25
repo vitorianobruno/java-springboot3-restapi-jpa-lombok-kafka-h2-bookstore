@@ -122,11 +122,20 @@ This clarifies the roles:
 
 ### 🧪 Test the Flow
 
-- Add a book to cart
+- Add books to cart
    ```bash
    curl -X POST "http://localhost:8080/api/cart/1/add?bookTitle=Spring%20Boot%20Basics" -H "Content-Type: application/json"
+   curl -X POST "http://localhost:8080/api/cart/1/add?bookTitle=Design%20Patterns" -H "Content-Type: application/json"
+   ```
+- Check the current cart
+   ```bash
+   curl -X GET "http://localhost:8080/api/cart/1" -H "Accept: application/json"
    ```
 - Execute checkout
    ```bash
-   curl -X GET "http://localhost:8080/api/cart/1/checkout" -H "Accept: application/json"`
+   curl -X POST "http://localhost:8080/api/cart/1/checkout" -H "Accept: application/json"`
+   ```
+- Check the order status by ID
+   ```bash
+   curl -X POST "http://localhost:8080/api/cart/order/2" -H "Accept: application/json"`
    ```

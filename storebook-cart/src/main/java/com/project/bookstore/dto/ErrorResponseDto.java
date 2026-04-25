@@ -1,2 +1,13 @@
-package com.project.bookstore.dto;public class ErrorResponseDto {
+package com.project.bookstore.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class ErrorResponseDto {
+    private String error;
+    private String message;
 }

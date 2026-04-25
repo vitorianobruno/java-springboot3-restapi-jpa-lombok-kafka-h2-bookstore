@@ -1,4 +1,4 @@
-package com.project.bookstore.model;
+package com.project.bookstore.model.enums;
 
 public enum OrderStatus {
     PENDING,
